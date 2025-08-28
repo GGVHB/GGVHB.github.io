@@ -11,27 +11,36 @@
 <div class="max-w-xl mx-auto bg-gray-900/70 rounded-2xl p-4 shadow-xl">
   <h1 class="text-2xl font-bold mb-4 text-center">📈 Investment Profit Calculator</h1>
 
-  <div id="itemsContainer" class="space-y-4">
-    <!-- แถวตัวอย่างแรก -->
-    <div class="item bg-gray-800/50 rounded-xl p-3 grid grid-cols-6 gap-2 items-center">
-      <input type="text" class="name bg-gray-700/50 rounded p-1 text-center" placeholder="ชื่อรายการ" value="ตัวอย่าง A">
-      <input type="number" class="cost bg-gray-700/50 rounded p-1 text-center" placeholder="ต้นทุน" value="10">
-      <input type="number" class="price bg-gray-700/50 rounded p-1 text-center" placeholder="ราคาขาย" value="15">
-      <input type="number" class="qty bg-gray-700/50 rounded p-1 text-center" placeholder="จำนวน" value="10">
-      <div class="profitPer text-center font-medium">5</div>
-      <div class="totalProfit text-center font-bold">50</div>
-      <button class="remove bg-red-600 rounded px-2 py-1 hover:bg-red-700">ลบ</button>
+  <div class="mb-4 flex justify-between items-center">
+    <span>ทุนเริ่มต้น: <strong id="initialCapital">500</strong></span>
+    <button id="addCategory" class="bg-blue-600 px-3 py-1 rounded hover:bg-blue-700">+ เพิ่มหมวดหมู่</button>
+  </div>
+
+  <div id="categoriesContainer" class="space-y-6">
+    <!-- หมวดหมู่ตัวอย่าง -->
+    <div class="category bg-gray-800/50 rounded-xl p-3">
+      <div class="flex justify-between items-center mb-2">
+        <input type="text" class="categoryName bg-gray-700/50 rounded p-1 w-2/3" placeholder="ชื่อหมวดหมู่" value="กลุ่ม A">
+      </div>
+      <div class="itemsContainer space-y-2">
+        <div class="item bg-gray-700/50 rounded-xl p-2 grid grid-cols-6 gap-2 items-center">
+          <input type="text" class="name bg-gray-600/50 rounded p-1 text-center" placeholder="ชื่อรายการ" value="ตัวอย่าง 1">
+          <input type="number" class="cost bg-gray-600/50 rounded p-1 text-center" placeholder="ต้นทุนรวม" value="500">
+          <input type="number" class="price bg-gray-600/50 rounded p-1 text-center" placeholder="ราคาต่อชิ้น" value="10">
+          <input type="number" class="qty bg-gray-600/50 rounded p-1 text-center" placeholder="จำนวน" value="10">
+          <div class="profitPer text-center font-medium">5</div>
+          <div class="totalProfit text-center font-bold">50</div>
+          <button class="remove bg-red-600 rounded px-2 py-1 hover:bg-red-700">ลบ</button>
+        </div>
+      </div>
+      <button class="addItem bg-green-600 px-3 py-1 rounded mt-2 hover:bg-green-700">+ เพิ่มรายการ</button>
     </div>
   </div>
 
-  <div class="flex justify-between mt-4">
-    <button id="addItem" class="bg-green-600 px-4 py-2 rounded hover:bg-green-700">+ เพิ่มรายการ</button>
-  </div>
-
   <div class="mt-4 bg-gray-800/50 rounded-xl p-3 space-y-1 text-sm">
-    <div class="flex justify-between"><span>ต้นทุนรวม:</span><span id="totalCost">0</span></div>
-    <div class="flex justify-between"><span>ยอดขายรวม:</span><span id="totalRevenue">0</span></div>
-    <div class="flex justify-between"><span>กำไรรวม:</span><span id="grandProfit">0</span></div>
+    <div class="flex justify-between"><span>ต้นทุนรวมทั้งหมด:</span><span id="totalCost">0</span></div>
+    <div class="flex justify-between"><span>ยอดขายรวมทั้งหมด:</span><span id="totalRevenue">0</span></div>
+    <div class="flex justify-between"><span>กำไรรวมทั้งหมด:</span><span id="grandProfit">0</span></div>
     <div class="flex justify-between"><span>ROI:</span><span id="roi">0%</span></div>
   </div>
 </div>
@@ -42,7 +51,7 @@ function updateRow(row){
   const price = Number(row.querySelector(".price").value);
   const qty = Number(row.querySelector(".qty").value);
 
-  const profitPer = price - cost;
+  const profitPer = price - (cost/qty); // ต้นทุนรวมหารจำนวน
   const totalProfit = profitPer * qty;
 
   row.querySelector(".profitPer").textContent = profitPer.toLocaleString();
@@ -55,9 +64,10 @@ function updateSummary(){
     const cost = Number(row.querySelector(".cost").value);
     const price = Number(row.querySelector(".price").value);
     const qty = Number(row.querySelector(".qty").value);
-    totalCost += cost * qty;
-    totalRevenue += price * qty;
-    grandProfit += (price - cost) * qty;
+
+    totalCost += cost;
+    totalRevenue += price*qty;
+    grandProfit += (price - (cost/qty))*qty;
   });
 
   document.getElementById("totalCost").textContent = totalCost.toLocaleString();
@@ -66,7 +76,7 @@ function updateSummary(){
   document.getElementById("roi").textContent = totalCost>0 ? ((grandProfit/totalCost)*100).toFixed(2)+"%" : "0%";
 }
 
-function attachEvents(row){
+function attachRowEvents(row){
   ["cost","price","qty","name"].forEach(cls=>{
     row.querySelector("."+cls).addEventListener("input", ()=>{
       updateRow(row);
@@ -79,25 +89,46 @@ function attachEvents(row){
   });
 }
 
-document.getElementById("addItem").addEventListener("click", ()=>{
-  const container = document.getElementById("itemsContainer");
-  const row = document.createElement("div");
-  row.className = "item bg-gray-800/50 rounded-xl p-3 grid grid-cols-6 gap-2 items-center";
-  row.innerHTML = `
-    <input type="text" class="name bg-gray-700/50 rounded p-1 text-center" placeholder="ชื่อรายการ">
-    <input type="number" class="cost bg-gray-700/50 rounded p-1 text-center" placeholder="ต้นทุน" value="0">
-    <input type="number" class="price bg-gray-700/50 rounded p-1 text-center" placeholder="ราคาขาย" value="0">
-    <input type="number" class="qty bg-gray-700/50 rounded p-1 text-center" placeholder="จำนวน" value="1">
-    <div class="profitPer text-center font-medium">0</div>
-    <div class="totalProfit text-center font-bold">0</div>
-    <button class="remove bg-red-600 rounded px-2 py-1 hover:bg-red-700">ลบ</button>
+function attachCategoryEvents(category){
+  const addBtn = category.querySelector(".addItem");
+  addBtn.addEventListener("click", ()=>{
+    const container = category.querySelector(".itemsContainer");
+    const row = document.createElement("div");
+    row.className = "item bg-gray-700/50 rounded-xl p-2 grid grid-cols-6 gap-2 items-center";
+    row.innerHTML = `
+      <input type="text" class="name bg-gray-600/50 rounded p-1 text-center" placeholder="ชื่อรายการ">
+      <input type="number" class="cost bg-gray-600/50 rounded p-1 text-center" placeholder="ต้นทุนรวม" value="0">
+      <input type="number" class="price bg-gray-600/50 rounded p-1 text-center" placeholder="ราคาต่อชิ้น" value="0">
+      <input type="number" class="qty bg-gray-600/50 rounded p-1 text-center" placeholder="จำนวน" value="1">
+      <div class="profitPer text-center font-medium">0</div>
+      <div class="totalProfit text-center font-bold">0</div>
+      <button class="remove bg-red-600 rounded px-2 py-1 hover:bg-red-700">ลบ</button>
+    `;
+    container.appendChild(row);
+    attachRowEvents(row);
+  });
+
+  category.querySelectorAll(".item").forEach(attachRowEvents);
+}
+
+// เพิ่มหมวดหมู่ใหม่
+document.getElementById("addCategory").addEventListener("click", ()=>{
+  const container = document.getElementById("categoriesContainer");
+  const category = document.createElement("div");
+  category.className = "category bg-gray-800/50 rounded-xl p-3";
+  category.innerHTML = `
+    <div class="flex justify-between items-center mb-2">
+      <input type="text" class="categoryName bg-gray-700/50 rounded p-1 w-2/3" placeholder="ชื่อหมวดหมู่">
+    </div>
+    <div class="itemsContainer space-y-2"></div>
+    <button class="addItem bg-green-600 px-3 py-1 rounded mt-2 hover:bg-green-700">+ เพิ่มรายการ</button>
   `;
-  container.appendChild(row);
-  attachEvents(row);
+  container.appendChild(category);
+  attachCategoryEvents(category);
 });
 
 // เริ่มต้น
-document.querySelectorAll(".item").forEach(attachEvents);
+document.querySelectorAll(".category").forEach(attachCategoryEvents);
 updateSummary();
 </script>
 
