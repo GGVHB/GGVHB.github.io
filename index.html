@@ -7,168 +7,133 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-6 text-slate-100">
-  <div class="max-w-4xl mx-auto bg-white/5 rounded-2xl p-6 shadow-2xl backdrop-blur">
+  <div class="max-w-5xl mx-auto bg-white/5 rounded-2xl p-6 shadow-2xl backdrop-blur">
     <header class="flex items-center justify-between">
       <div>
         <h1 class="text-2xl font-bold">Roblox Item Profit Calculator</h1>
-        <p class="text-sm text-slate-300 mt-1">เลือกตัวจากแมพ "Steal a Brainrot" แล้วตั้งราคาต้นทุน/ราคาขาย ดูกำไรและผลตอบแทนอัตโนมัติ</p>
+        <p class="text-sm text-slate-300 mt-1">เลือกตัวจากแมพ "Steal a Brainrot" แล้วตั้งราคาต้นทุน/ราคาขาย ดูกำไรและ ROI อัตโนมัติ</p>
       </div>
-      <div id="selectedChar" class="flex items-center gap-3"></div>
     </header>
 
-    <main class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-      <section class="col-span-2 bg-white/3 rounded-xl p-4">
-        <h2 class="font-semibold text-lg">ตั้งค่า</h2>
-        <div class="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
+    <main class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+      <!-- ฝั่งซื้อ -->
+      <section class="bg-white/3 rounded-xl p-4">
+        <h2 class="font-semibold text-lg">ตัวละคร (ฝั่งซื้อ)</h2>
+        <div id="buyCharList" class="mt-3 grid grid-cols-3 sm:grid-cols-6 gap-3"></div>
+
+        <div class="mt-4">
           <label class="flex flex-col">
-            <span class="text-sm text-slate-300">ต้นทุนต่อชิ้น</span>
-            <input id="cost" type="number" value="10" class="mt-1 rounded-lg p-2 bg-white/5 outline-none">
+            <span class="text-sm text-slate-300">ชื่อที่เลือก (ซื้อ)</span>
+            <input id="buyName" type="text" class="mt-1 rounded-lg p-2 bg-white/5 outline-none">
           </label>
 
-          <label class="flex flex-col">
-            <span class="text-sm text-slate-300">ราคาขายต่อชิ้น</span>
-            <input id="price" type="number" value="15" class="mt-1 rounded-lg p-2 bg-white/5 outline-none">
+          <label class="flex flex-col mt-2">
+            <span class="text-sm text-slate-300">ราคาต้นทุน</span>
+            <input id="buyPrice" type="number" value="0" class="mt-1 rounded-lg p-2 bg-white/5 outline-none">
           </label>
-
-          <label class="flex flex-col">
-            <span class="text-sm text-slate-300">จำนวนที่ซื้อ</span>
-            <input id="qty" type="number" value="10" class="mt-1 rounded-lg p-2 bg-white/5 outline-none">
-          </label>
-        </div>
-
-        <div class="mt-6">
-          <h3 class="font-medium">เลือกตัวละคร</h3>
-          <div id="charList" class="mt-3 grid grid-cols-3 sm:grid-cols-6 gap-3"></div>
         </div>
       </section>
 
-      <aside class="bg-white/3 rounded-xl p-4 flex flex-col gap-3">
-        <h2 class="font-semibold text-lg">สรุปอัตโนมัติ</h2>
-        <div class="grid grid-cols-2 gap-2 text-sm">
-          <div class="text-slate-300">ต้นทุนรวม</div>
-          <div id="totalInvested" class="text-right font-medium">0</div>
+      <!-- ฝั่งขาย -->
+      <section class="bg-white/3 rounded-xl p-4">
+        <h2 class="font-semibold text-lg">ตัวละคร (ฝั่งขาย)</h2>
+        <div id="sellCharList" class="mt-3 grid grid-cols-3 sm:grid-cols-6 gap-3"></div>
 
-          <div class="text-slate-300">ยอดขายรวม</div>
-          <div id="totalRevenue" class="text-right font-medium">0</div>
+        <div class="mt-4">
+          <label class="flex flex-col">
+            <span class="text-sm text-slate-300">ชื่อที่เลือก (ขาย)</span>
+            <input id="sellName" type="text" class="mt-1 rounded-lg p-2 bg-white/5 outline-none">
+          </label>
 
-          <div class="text-slate-300">กำไรต่อชิ้น</div>
-          <div id="profitPer" class="text-right font-medium">0</div>
+          <label class="flex flex-col mt-2">
+            <span class="text-sm text-slate-300">ราคาขาย</span>
+            <input id="sellPrice" type="number" value="0" class="mt-1 rounded-lg p-2 bg-white/5 outline-none">
+          </label>
 
-          <div class="text-slate-300">กำไรรวม</div>
-          <div id="totalProfit" class="text-right font-bold">0</div>
-
-          <div class="text-slate-300">ผลตอบแทน (ROI)</div>
-          <div id="roi" class="text-right font-medium">0%</div>
+          <label class="flex flex-col mt-2">
+            <span class="text-sm text-slate-300">จำนวน</span>
+            <input id="sellQty" type="number" value="1" class="mt-1 rounded-lg p-2 bg-white/5 outline-none">
+          </label>
         </div>
 
-        <div class="mt-3">
-          <div class="text-xs text-slate-300">คำอธิบาย</div>
-          <div class="text-sm mt-1">ยอดลงทุนคืนมา = ต้นทุนรวม + กำไร = <span id="totalReturn" class="font-semibold">0</span></div>
+        <div class="mt-4 bg-white/5 p-3 rounded-xl text-sm grid grid-cols-2 gap-2">
+          <div class="text-slate-300">ต้นทุนรวม</div><div id="totalCost" class="text-right font-medium">0</div>
+          <div class="text-slate-300">ยอดขายรวม</div><div id="totalRevenue" class="text-right font-medium">0</div>
+          <div class="text-slate-300">กำไรต่อชิ้น</div><div id="profitPer" class="text-right font-medium">0</div>
+          <div class="text-slate-300">กำไรรวม</div><div id="totalProfit" class="text-right font-bold">0</div>
+          <div class="text-slate-300">ROI</div><div id="roi" class="text-right font-medium">0%</div>
         </div>
-      </aside>
+      </section>
     </main>
-
-    <footer class="mt-6 text-sm text-slate-400">
-      สามารถเปลี่ยนรูปตัวละครเป็นรูปจริงจากเกม Roblox ได้
-    </footer>
   </div>
 
   <script>
-    // ตัวละครทั้งหมดแบ่งตามระดับความหายาก
-    const sampleCharacters = [
-      // Common
-      { id:1, name:"Noobini Pizzanini", rarity:"Common", defaultCost:25, defaultPrice:35, img:"https://placehold.co/100x100?text=Noobini" },
-      { id:2, name:"Lirili Larila", rarity:"Common", defaultCost:250, defaultPrice:300, img:"https://placehold.co/100x100?text=Lirili" },
-      { id:3, name:"Tim Cheese", rarity:"Common", defaultCost:500, defaultPrice:700, img:"https://placehold.co/100x100?text=Tim" },
-      { id:4, name:"Flurifura", rarity:"Common", defaultCost:750, defaultPrice:1000, img:"https://placehold.co/100x100?text=Flurifura" },
-      { id:5, name:"Talpa Di Fero", rarity:"Common", defaultCost:1000, defaultPrice:1300, img:"https://placehold.co/100x100?text=Talpa" },
-      { id:6, name:"Svinia Bombardino", rarity:"Common", defaultCost:1200, defaultPrice:1500, img:"https://placehold.co/100x100?text=Svinia" },
-      { id:7, name:"Pipi Kiwi", rarity:"Common", defaultCost:1500, defaultPrice:2000, img:"https://placehold.co/100x100?text=Pipi" },
-      { id:8, name:"Racooni Jandelini", rarity:"Common", defaultCost:1300, defaultPrice:1700, img:"https://placehold.co/100x100?text=Racooni" },
-      { id:9, name:"Pipi Corni", rarity:"Common", defaultCost:1700, defaultPrice:2200, img:"https://placehold.co/100x100?text=Pipicorni" },
-
-      // Rare
-      { id:10, name:"Trippi Troppi", rarity:"Rare", defaultCost:2000, defaultPrice:3000, img:"https://placehold.co/100x100?text=Trippi" },
-      { id:11, name:"Tung Tung Tung Sahur", rarity:"Rare", defaultCost:3000, defaultPrice:4000, img:"https://placehold.co/100x100?text=TungTung" },
-      { id:12, name:"Gangster Footera", rarity:"Rare", defaultCost:4000, defaultPrice:5500, img:"https://placehold.co/100x100?text=Gangster" },
-
-      // Epic
-      { id:13, name:"Brainrot God", rarity:"Epic", defaultCost:8000, defaultPrice:12000, img:"https://placehold.co/100x100?text=BrainrotGod" }
+    // ตัวละครตัวอย่าง (แค่ชื่อและ URL รูปจริง placeholder)
+    const characters = [
+      {name:"Noobini Pizzanini", rarity:"Common", img:"https://placehold.co/100x100?text=Noobini"},
+      {name:"Lirili Larila", rarity:"Common", img:"https://placehold.co/100x100?text=Lirili"},
+      {name:"Tim Cheese", rarity:"Common", img:"https://placehold.co/100x100?text=Tim"},
+      {name:"Flurifura", rarity:"Common", img:"https://placehold.co/100x100?text=Flurifura"},
+      {name:"Talpa Di Fero", rarity:"Rare", img:"https://placehold.co/100x100?text=Talpa"},
+      {name:"Gangster Footera", rarity:"Rare", img:"https://placehold.co/100x100?text=Gangster"},
+      {name:"Brainrot God", rarity:"Epic", img:"https://placehold.co/100x100?text=BrainrotGod"}
     ];
 
-    let selected = sampleCharacters[0];
+    const buyCharList = document.getElementById("buyCharList");
+    const sellCharList = document.getElementById("sellCharList");
 
-    const costInput = document.getElementById("cost");
-    const priceInput = document.getElementById("price");
-    const qtyInput = document.getElementById("qty");
+    const buyName = document.getElementById("buyName");
+    const buyPrice = document.getElementById("buyPrice");
 
-    const totalInvestedEl = document.getElementById("totalInvested");
+    const sellName = document.getElementById("sellName");
+    const sellPrice = document.getElementById("sellPrice");
+    const sellQty = document.getElementById("sellQty");
+
+    const totalCostEl = document.getElementById("totalCost");
     const totalRevenueEl = document.getElementById("totalRevenue");
     const profitPerEl = document.getElementById("profitPer");
     const totalProfitEl = document.getElementById("totalProfit");
     const roiEl = document.getElementById("roi");
-    const totalReturnEl = document.getElementById("totalReturn");
-    const selectedCharEl = document.getElementById("selectedChar");
-
-    function format(n){return Number(n).toLocaleString();}
-
-    function updateSummary(){
-      const cost = Number(costInput.value);
-      const price = Number(priceInput.value);
-      const qty = Number(qtyInput.value);
-
-      const profitPer = price - cost;
-      const totalProfit = profitPer * qty;
-      const totalInvested = cost * qty;
-      const totalRevenue = price * qty;
-      const roi = totalInvested > 0 ? (totalProfit / totalInvested) * 100 : 0;
-
-      totalInvestedEl.textContent = format(totalInvested);
-      totalRevenueEl.textContent = format(totalRevenue);
-      profitPerEl.textContent = format(profitPer);
-      totalProfitEl.textContent = format(totalProfit);
-      roiEl.textContent = roi.toFixed(2) + "%";
-      totalReturnEl.textContent = format(totalInvested + totalProfit);
-
-      selectedCharEl.innerHTML = `
-        <img src="${selected.img}" class="w-12 h-12 rounded-md border border-white/10 shadow-xl">
-        <div class="text-right">
-          <div class="text-sm text-slate-300">ตัวที่เลือก</div>
-          <div class="font-semibold">${selected.name} (${selected.rarity})</div>
-        </div>
-      `;
-    }
 
     function renderCharacters(){
-      const charList = document.getElementById("charList");
-      charList.innerHTML = "";
+      buyCharList.innerHTML = "";
+      sellCharList.innerHTML = "";
 
-      // Group by rarity
-      const rarities = ["Common","Rare","Epic"];
-      rarities.forEach(r=>{
-        const header = document.createElement("div");
-        header.className = "col-span-full text-sm font-medium text-slate-200 mt-2";
-        header.textContent = r;
-        charList.appendChild(header);
+      characters.forEach(c=>{
+        const buyBtn = document.createElement("button");
+        buyBtn.className = "flex flex-col items-center p-2 rounded-lg border-2 bg-white/3 hover:scale-105 transition";
+        buyBtn.innerHTML = `<img src="${c.img}" class="w-16 h-16 rounded-md"><div class='text-xs mt-1 text-center'>${c.name}</div>`;
+        buyBtn.onclick = ()=>{ buyName.value = c.name; };
+        buyCharList.appendChild(buyBtn);
 
-        sampleCharacters.filter(c=>c.rarity===r).forEach(c => {
-          const btn = document.createElement("button");
-          btn.className = "flex flex-col items-center p-2 rounded-lg border-2 bg-white/3 hover:scale-105 transition";
-          btn.innerHTML = `<img src="${c.img}" class="w-16 h-16 rounded-md"><div class='text-xs mt-1 text-center'>${c.name}</div>`;
-          btn.onclick = ()=>{
-            selected = c;
-            costInput.value = c.defaultCost;
-            priceInput.value = c.defaultPrice;
-            updateSummary();
-          };
-          charList.appendChild(btn);
-        });
+        const sellBtn = document.createElement("button");
+        sellBtn.className = "flex flex-col items-center p-2 rounded-lg border-2 bg-white/3 hover:scale-105 transition";
+        sellBtn.innerHTML = `<img src="${c.img}" class="w-16 h-16 rounded-md"><div class='text-xs mt-1 text-center'>${c.name}</div>`;
+        sellBtn.onclick = ()=>{ sellName.value = c.name; updateSummary(); };
+        sellCharList.appendChild(sellBtn);
       });
     }
 
-    [costInput, priceInput, qtyInput].forEach(input=>{
-      input.addEventListener("input", updateSummary);
-    });
+    function updateSummary(){
+      const cost = Number(buyPrice.value);
+      const price = Number(sellPrice.value);
+      const qty = Number(sellQty.value);
+
+      const profitPer = price - cost;
+      const totalProfit = profitPer * qty;
+      const totalCost = cost * qty;
+      const totalRevenue = price * qty;
+      const roi = totalCost > 0 ? (totalProfit/totalCost)*100 : 0;
+
+      totalCostEl.textContent = totalCost.toLocaleString();
+      totalRevenueEl.textContent = totalRevenue.toLocaleString();
+      profitPerEl.textContent = profitPer.toLocaleString();
+      totalProfitEl.textContent = totalProfit.toLocaleString();
+      roiEl.textContent = roi.toFixed(2) + "%";
+    }
+
+    [buyPrice,sellPrice,sellQty].forEach(input=>input.addEventListener("input",updateSummary));
 
     renderCharacters();
     updateSummary();
