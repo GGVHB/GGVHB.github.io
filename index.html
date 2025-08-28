@@ -3,131 +3,121 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Investment Tracker (Offline)</title>
+<title>Investment Tracker - Calculator</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-  body { min-height: 100vh; }
+  body { min-height: 100vh; background: linear-gradient(135deg,#1f2937,#111827); font-family:'Inter',sans-serif; }
+  .card { backdrop-filter: blur(10px); background: rgba(255,255,255,0.05); }
 </style>
 </head>
-<body class="bg-gradient-to-br from-gray-900 to-gray-800 text-white p-4">
+<body class="p-4">
 
-<div class="max-w-xl mx-auto">
-  <h1 class="text-2xl font-bold mb-4 text-center">Investment Tracker</h1>
+<!-- Login Page -->
+<div id="loginPage" class="flex items-center justify-center min-h-screen">
+  <div class="card rounded-2xl p-8 w-full max-w-md shadow-2xl">
+    <h1 class="text-3xl font-bold text-center text-white mb-6">Investment Tracker</h1>
+    <p class="text-center text-gray-300 mb-6">ล็อกอิน Admin เพื่อจัดการรายการ</p>
 
-  <!-- Login -->
-  <div id="loginDiv" class="mb-4">
-    <input id="loginEmail" type="email" placeholder="Email" class="p-2 rounded text-black w-full mb-2">
-    <input id="loginPass" type="password" placeholder="Password" class="p-2 rounded text-black w-full mb-2">
-    <button onclick="login()" class="bg-blue-600 px-4 py-2 rounded w-full mb-2 hover:bg-blue-700">Login Admin</button>
+    <input id="loginEmail" type="email" placeholder="Email" class="w-full p-3 mb-4 rounded-xl bg-gray-800 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 outline-none transition">
+    <input id="loginPass" type="password" placeholder="Password" class="w-full p-3 mb-6 rounded-xl bg-gray-800 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 outline-none transition">
+
+    <button onclick="login()" class="w-full bg-blue-600 hover:bg-blue-700 transition text-white font-semibold py-3 rounded-xl shadow-lg">ล็อกอิน</button>
   </div>
+</div>
 
-  <button onclick="logout()" class="bg-gray-600 px-4 py-2 rounded w-full mb-4 hover:bg-gray-700">Logout</button>
-  <button onclick="addCategory()" class="bg-blue-500 px-3 py-1 rounded mb-4 w-full hover:bg-blue-600">+ เพิ่มหมวดหมู่</button>
+<!-- Calculator Page -->
+<div id="calcPage" class="hidden max-w-xl mx-auto">
+  <h1 class="text-3xl font-bold text-white mb-6 text-center">Investment Calculator</h1>
 
-  <div id="categoriesContainer" class="space-y-4"></div>
+  <button onclick="addItem()" class="bg-green-600 px-4 py-2 rounded mb-4 hover:bg-green-700">+ เพิ่มรายการ</button>
+
+  <div id="itemsContainer" class="space-y-4"></div>
 </div>
 
 <script>
-  // 🔹 Admin Login Hardcode
   const ADMIN_EMAIL = "admin@example.com";
   const ADMIN_PASS = "123456";
   let isAdmin = false;
+
+  let items = [
+    {name:"Item A", cost:500, price:10, qty:10},
+    {name:"Item B", cost:200, price:15, qty:5}
+  ];
 
   function login() {
     const email = document.getElementById("loginEmail").value;
     const pass = document.getElementById("loginPass").value;
     if(email === ADMIN_EMAIL && pass === ADMIN_PASS){
-      alert("เข้าสู่ระบบ Admin สำเร็จ!");
       isAdmin = true;
-      document.getElementById("loginDiv").style.display="none";
-      renderCategories();
+      document.getElementById("loginPage").classList.add("hidden");
+      document.getElementById("calcPage").classList.remove("hidden");
+      renderItems();
     } else {
       alert("Email หรือ Password ไม่ถูกต้อง");
     }
   }
 
-  function logout(){
-    isAdmin = false;
-    document.getElementById("loginDiv").style.display="block";
-    renderCategories();
-  }
-
-  // 🔹 ข้อมูลหมวดหมู่ + รายการ
-  let categories = [
-    { name:"ตัวอย่างหมวด 1", items:[
-        { name:"Item A", cost:500, price:10, qty:10 },
-        { name:"Item B", cost:200, price:20, qty:5 }
-      ] },
-    { name:"ตัวอย่างหมวด 2", items:[
-        { name:"Item C", cost:100, price:15, qty:8 }
-      ] }
-  ];
-
-  function renderCategories(){
-    const container = document.getElementById("categoriesContainer");
-    container.innerHTML="";
-    categories.forEach((cat,catIdx)=>{
-      const catDiv = document.createElement("div");
-      catDiv.className="bg-gray-800/50 rounded-xl p-3 mb-4";
-      let html = `<h2 class="font-bold text-lg mb-2">${cat.name}</h2>`;
-      html += `<div class="space-y-2">`;
-      cat.items.forEach((item,itemIdx)=>{
-        const profitPer = item.price - (item.cost/item.qty);
-        const totalProfit = profitPer * item.qty;
-        html += `<div class="bg-gray-700/50 rounded-xl p-2 grid grid-cols-6 gap-2 items-center">
-          <div>${item.name}</div>
-          <div>${item.cost}</div>
-          <div>${item.price}</div>
-          <div>${item.qty}</div>
-          <div>${profitPer.toFixed(2)}</div>
-          <div>${totalProfit.toFixed(2)}</div>`;
-        if(isAdmin){
-          html += `<button class="bg-yellow-500 px-2 rounded" onclick="editItem(${catIdx},${itemIdx})">แก้ไข</button>
-                   <button class="bg-red-600 px-2 rounded" onclick="deleteItem(${catIdx},${itemIdx})">ลบ</button>`;
-        }
-        html += `</div>`;
-      });
-      html += `</div>`;
-      if(isAdmin){
-        html += `<button class="bg-green-600 px-3 py-1 rounded mt-2 hover:bg-green-700" onclick="addItem(${catIdx})">+ เพิ่มรายการ</button>`;
-      }
-      catDiv.innerHTML = html;
-      container.appendChild(catDiv);
-    });
-  }
-
-  function addCategory(){
-    if(!isAdmin) return alert("ต้องล็อกอิน Admin");
-    const name = prompt("ชื่อหมวดหมู่?");
-    if(name) categories.push({name,items:[]});
-    renderCategories();
-  }
-
-  function addItem(catIdx){
+  function addItem(){
     const name = prompt("ชื่อรายการ?");
-    const cost = parseFloat(prompt("ต้นทุนรวม?","500"))||0;
-    const price = parseFloat(prompt("ราคาต่อชิ้น?","10"))||0;
-    const qty = parseInt(prompt("จำนวน?","10"))||1;
-    categories[catIdx].items.push({name,cost,price,qty});
-    renderCategories();
+    if(!name) return;
+    const cost = parseFloat(prompt("ต้นทุนรวม?", "500"))||0;
+    const price = parseFloat(prompt("ราคาต่อชิ้น?", "10"))||0;
+    const qty = parseInt(prompt("จำนวน?", "10"))||1;
+    items.push({name,cost,price,qty});
+    renderItems();
   }
 
-  function editItem(catIdx,itemIdx){
-    const item = categories[catIdx].items[itemIdx];
+  function editItem(idx){
+    const item = items[idx];
     item.name = prompt("ชื่อรายการ?",item.name)||item.name;
     item.cost = parseFloat(prompt("ต้นทุนรวม?",item.cost))||item.cost;
     item.price = parseFloat(prompt("ราคาต่อชิ้น?",item.price))||item.price;
     item.qty = parseInt(prompt("จำนวน?",item.qty))||item.qty;
-    renderCategories();
+    renderItems();
   }
 
-  function deleteItem(catIdx,itemIdx){
-    if(confirm("ลบรายการ?")) categories[catIdx].items.splice(itemIdx,1);
-    renderCategories();
+  function deleteItem(idx){
+    if(confirm("ลบรายการ?")) items.splice(idx,1);
+    renderItems();
   }
 
-  // เริ่มต้น render
-  renderCategories();
+  function renderItems(){
+    const container = document.getElementById("itemsContainer");
+    container.innerHTML="";
+    items.forEach((item,idx)=>{
+      const profitPer = item.price - (item.cost/item.qty);
+      const totalProfit = profitPer * item.qty;
+
+      const row = document.createElement("div");
+      row.className = "bg-gray-800/50 rounded-xl p-3 grid grid-cols-6 gap-2 items-center text-white";
+
+      row.innerHTML = `
+        <div>${item.name}</div>
+        <div>${item.cost}</div>
+        <div>${item.price}</div>
+        <div>${item.qty}</div>
+        <div>${profitPer.toFixed(2)}</div>
+        <div>${totalProfit.toFixed(2)}</div>
+      `;
+
+      if(isAdmin){
+        const editBtn = document.createElement("button");
+        editBtn.textContent="แก้ไข";
+        editBtn.className="bg-yellow-500 px-2 rounded";
+        editBtn.onclick=()=>editItem(idx);
+
+        const delBtn = document.createElement("button");
+        delBtn.textContent="ลบ";
+        delBtn.className="bg-red-600 px-2 rounded";
+        delBtn.onclick=()=>deleteItem(idx);
+
+        row.appendChild(editBtn);
+        row.appendChild(delBtn);
+      }
+
+      container.appendChild(row);
+    });
+  }
 </script>
 
 </body>
