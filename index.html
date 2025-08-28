@@ -3,22 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Profit Calculator Mobile</title>
+<title>Investment Profit Calculator</title>
 <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gradient-to-br from-gray-900 to-gray-800 text-white p-4">
 
-<div class="max-w-xl mx-auto bg-gray-900/60 rounded-2xl p-4 shadow-xl">
-  <h1 class="text-2xl font-bold mb-4 text-center">📈 Profit Calculator</h1>
+<div class="max-w-xl mx-auto bg-gray-900/70 rounded-2xl p-4 shadow-xl">
+  <h1 class="text-2xl font-bold mb-4 text-center">📈 Investment Profit Calculator</h1>
 
   <div id="itemsContainer" class="space-y-4">
-    <!-- แถวแรก -->
+    <!-- แถวตัวอย่างแรก -->
     <div class="item bg-gray-800/50 rounded-xl p-3 grid grid-cols-6 gap-2 items-center">
-      <input type="number" class="cost bg-gray-700/50 rounded p-1 text-center" placeholder="ต้นทุน" value="0">
-      <input type="number" class="price bg-gray-700/50 rounded p-1 text-center" placeholder="ขาย" value="0">
-      <input type="number" class="qty bg-gray-700/50 rounded p-1 text-center" placeholder="จำนวน" value="1">
-      <div class="profitPer text-center font-medium">0</div>
-      <div class="totalProfit text-center font-bold">0</div>
+      <input type="text" class="name bg-gray-700/50 rounded p-1 text-center" placeholder="ชื่อรายการ" value="ตัวอย่าง A">
+      <input type="number" class="cost bg-gray-700/50 rounded p-1 text-center" placeholder="ต้นทุน" value="10">
+      <input type="number" class="price bg-gray-700/50 rounded p-1 text-center" placeholder="ราคาขาย" value="15">
+      <input type="number" class="qty bg-gray-700/50 rounded p-1 text-center" placeholder="จำนวน" value="10">
+      <div class="profitPer text-center font-medium">5</div>
+      <div class="totalProfit text-center font-bold">50</div>
       <button class="remove bg-red-600 rounded px-2 py-1 hover:bg-red-700">ลบ</button>
     </div>
   </div>
@@ -66,7 +67,7 @@ function updateSummary(){
 }
 
 function attachEvents(row){
-  ["cost","price","qty"].forEach(cls=>{
+  ["cost","price","qty","name"].forEach(cls=>{
     row.querySelector("."+cls).addEventListener("input", ()=>{
       updateRow(row);
       updateSummary();
@@ -78,14 +79,14 @@ function attachEvents(row){
   });
 }
 
-// เพิ่มแถวใหม่
 document.getElementById("addItem").addEventListener("click", ()=>{
   const container = document.getElementById("itemsContainer");
   const row = document.createElement("div");
   row.className = "item bg-gray-800/50 rounded-xl p-3 grid grid-cols-6 gap-2 items-center";
   row.innerHTML = `
+    <input type="text" class="name bg-gray-700/50 rounded p-1 text-center" placeholder="ชื่อรายการ">
     <input type="number" class="cost bg-gray-700/50 rounded p-1 text-center" placeholder="ต้นทุน" value="0">
-    <input type="number" class="price bg-gray-700/50 rounded p-1 text-center" placeholder="ขาย" value="0">
+    <input type="number" class="price bg-gray-700/50 rounded p-1 text-center" placeholder="ราคาขาย" value="0">
     <input type="number" class="qty bg-gray-700/50 rounded p-1 text-center" placeholder="จำนวน" value="1">
     <div class="profitPer text-center font-medium">0</div>
     <div class="totalProfit text-center font-bold">0</div>
